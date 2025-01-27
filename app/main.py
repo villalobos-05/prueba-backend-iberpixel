@@ -56,7 +56,7 @@ def get_book_by_id(id: int):
     return bookFound
 
 
-@app.post("/api/books", response_model=Book)
+@app.post("/api/books", response_model=Book, status_code=status.HTTP_201_CREATED)
 def create_book(book: CreateBook):
     new_book = InMemoryBook(book)
     BOOKS.append(new_book)
