@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, status
-from app.models.book import Book, CreateBook
+from app.models.book import Book, CreateBook, UpdateBook
 from app.utils.getActualDatetime import getActualDatetime
 
 app = FastAPI()
@@ -61,3 +61,17 @@ def create_book(book: CreateBook):
     new_book = InMemoryBook(book)
     BOOKS.append(new_book)
     return new_book
+
+
+@app.put("/api/books/{id}", response_model=Book)
+def update_book(id: int, newBook: UpdateBook):
+    index = next((i for i, b in enumerate(BOOKS) if b["id"] == id), None)
+
+    if index is None:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, detail=f"Book with id {id} not found"
+        )
+
+    BOOKS[index].update(newBook.model_dump(exclude_unset=True))
+
+    return BOOKS[index]
