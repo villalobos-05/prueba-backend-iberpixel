@@ -7,3 +7,9 @@ class Book(BaseModel):
     author: str
     isRead: bool
     createdAt: str
+
+
+class CreateBook(BaseModel):
+    title: str
+    author: str
+    isRead: bool
