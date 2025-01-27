@@ -1,7 +1,23 @@
 from fastapi import FastAPI, HTTPException, status
-from app.models.book import Book
+from app.models.book import Book, CreateBook
+from app.utils.getActualDatetime import getActualDatetime
 
 app = FastAPI()
+
+
+# Just to count in memory book creations
+class InMemoryBook:
+    id_counter = 3  # Static id counter
+
+    def __init__(self, book: CreateBook):
+        self.id = InMemoryBook.id_counter
+        self.title = book.title
+        self.author = book.author
+        self.isRead = book.isRead
+        self.createdAt = getActualDatetime()
+
+        # Increase id counter for the next book created
+        InMemoryBook.id_counter += 1
 
 
 # Database in memory
@@ -38,3 +54,10 @@ def get_book_by_id(id: int):
         )
 
     return bookFound
+
+
+@app.post("/api/books", response_model=Book)
+def create_book(book: CreateBook):
+    new_book = InMemoryBook(book)
+    BOOKS.append(new_book)
+    return new_book
