@@ -40,8 +40,20 @@ BOOKS: list[Book] = [
 
 
 @app.get("/api/books", response_model=list[Book])
-def get_books():
-    return BOOKS
+def get_books(author: str | None = None, title: str | None = None):
+    filtered_books = BOOKS
+
+    if author:
+        filtered_books = [
+            book for book in filtered_books if book["author"].lower() == author.lower()
+        ]
+
+    if title:
+        filtered_books = [
+            book for book in filtered_books if book["title"].lower() == title.lower()
+        ]
+
+    return filtered_books
 
 
 @app.get("/api/books/{id}", response_model=Book)
