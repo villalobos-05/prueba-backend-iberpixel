@@ -75,3 +75,16 @@ def update_book(id: int, newBook: UpdateBook):
     BOOKS[index].update(newBook.model_dump(exclude_unset=True))
 
     return BOOKS[index]
+
+
+@app.patch("/api/books/{id}/read", response_model=Book)
+def toggle_book_read_status(id: int):
+    index = next((i for i, b in enumerate(BOOKS) if b["id"] == id), None)
+
+    if index is None:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, detail=f"Book with id {id} not found"
+        )
+
+    BOOKS[index]["isRead"] = not BOOKS[index]["isRead"]
+    return BOOKS[index]
