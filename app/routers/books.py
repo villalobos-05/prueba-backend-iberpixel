@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Depends
-from app.models.book import Book, CreateBook
+from app.models.book import Book, CreateBook, UpdateBook
 from app.schemas.book import book_schema, books_schema
 from app.utils.getActualDatetime import getActualDatetime
 from app.utils.getObjectId import getObjectId
@@ -48,3 +48,19 @@ async def create_book(book: CreateBook):
     createdBook = await collection.find_one({"_id": response.inserted_id})
 
     return book_schema(createdBook)
+
+
+@router.put("/books/{id}", response_model=Book)
+async def update_book(id: Annotated[str, Depends(getObjectId)], newBook: UpdateBook):
+    book = await collection.find_one_and_update(
+        {"_id": id},
+        {"$set": newBook.model_dump(exclude_unset=True)},
+        return_document=True,
+    )
+
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with id {id} not found"
+        )
+
+    return book_schema(book)
