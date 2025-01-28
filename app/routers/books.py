@@ -64,3 +64,21 @@ async def update_book(id: Annotated[str, Depends(getObjectId)], newBook: UpdateB
         )
 
     return book_schema(book)
+
+
+@router.patch("/books/{id}/read", response_model=Book)
+async def toggle_book_read_status(id: Annotated[str, Depends(getObjectId)]):
+    book = await collection.find_one({"_id": id})
+
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with id {id} not found"
+        )
+
+    updatedBook = await collection.find_one_and_update(
+        {"_id": id},
+        {"$set": {"isRead": not book["isRead"]}},
+        return_document=True,
+    )
+
+    return book_schema(updatedBook)
