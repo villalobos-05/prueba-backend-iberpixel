@@ -10,7 +10,7 @@ def get_database():
     # Create a connection
     client = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
 
-    # Return collection
+    # Return database
     return client[os.getenv("MONGODB_DATABASE")]
 
 
