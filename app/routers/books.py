@@ -33,9 +33,7 @@ async def get_book_by_id(id: Annotated[str, Depends(getObjectId)]):
     book = await collection.find_one({"_id": id})
 
     if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with id {id} not found"
-        )
+        raiseBookNotFoundById(id)
 
     return book_schema(book)
 
@@ -59,9 +57,7 @@ async def update_book(id: Annotated[str, Depends(getObjectId)], newBook: UpdateB
     )
 
     if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with id {id} not found"
-        )
+        raiseBookNotFoundById(id)
 
     return book_schema(book)
 
@@ -71,9 +67,7 @@ async def toggle_book_read_status(id: Annotated[str, Depends(getObjectId)]):
     book = await collection.find_one({"_id": id})
 
     if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with id {id} not found"
-        )
+        raiseBookNotFoundById(id)
 
     updatedBook = await collection.find_one_and_update(
         {"_id": id},
@@ -82,3 +76,10 @@ async def toggle_book_read_status(id: Annotated[str, Depends(getObjectId)]):
     )
 
     return book_schema(updatedBook)
+
+
+# Just not to write the same exception over and over again
+def raiseBookNotFoundById(id: str):
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with id {id} not found"
+    )
