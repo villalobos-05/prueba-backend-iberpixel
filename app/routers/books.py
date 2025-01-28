@@ -1,7 +1,8 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Depends
-from app.models.book import Book
+from app.models.book import Book, CreateBook
 from app.schemas.book import book_schema, books_schema
+from app.utils.getActualDatetime import getActualDatetime
 from app.utils.getObjectId import getObjectId
 from app.database import get_database
 
@@ -37,3 +38,13 @@ async def get_book_by_id(id: Annotated[str, Depends(getObjectId)]):
         )
 
     return book_schema(book)
+
+
+@router.post("/books", status_code=status.HTTP_201_CREATED, response_model=Book)
+async def create_book(book: CreateBook):
+    response = await collection.insert_one(
+        {**book.model_dump(), "createdAt": getActualDatetime()}
+    )
+    createdBook = await collection.find_one({"_id": response.inserted_id})
+
+    return book_schema(createdBook)
