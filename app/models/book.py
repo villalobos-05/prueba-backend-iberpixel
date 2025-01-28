@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class Book(BaseModel):
-    id: int
+    id: int | str
     title: str
     author: str
     isRead: bool
